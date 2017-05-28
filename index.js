@@ -6,6 +6,7 @@ var Database = require('./Database');
 
 // load our models
 var Hero = require('./Hero');
+var Map = require('./Map');
 
 // create the discord client obj
 var client = new discordie();
@@ -39,8 +40,9 @@ client.Dispatcher.on("GATEWAY_READY", e => {
 	connection = new Database();
 });
 
-client.Dispatcher.on("MESSAGE_CREATE", e => {  
-	input = e.message.content.split(' ');
+client.Dispatcher.on("MESSAGE_CREATE", e => {
+	input = e.message.content.match(/[^\s"]+|"([^"]*)"/gi);
+	console.log(input);
 
 	if(input[0] == "!help"){
 		e.message.channel.sendMessage("Usage: !hero <heroname>");
@@ -78,7 +80,14 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 	}else if(input[0] == "!hero"){
 		var hero = new Hero(input[1]);
 	}else if(input[0] == "!map"){
+		var options = {};
+		
+		if(input[1] !== undefined)
+			options.map = input[1];
+		if(input[2] !== undefined)
+			options.hero = input[2];
 
+		var map = new Map(options);
 	}
 });
 
