@@ -45,14 +45,26 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 	input = e.message.content.match(/[^\s"]+|"([^"]*)"/gi);
 
 	if(input[0] == "!help"){
-		e.message.channel.sendMessage("Usage: !hero <heroname>");
-		e.message.channel.sendMessage("Output: <hero-role> <hero-counters> <hero-synergies>");
-		e.message.channel.sendMessage("Usage: !map <mapname> (optional: <hero-role>)");
-		e.message.channel.sendMessage("Output: <best-heroes> <notes>");
-		console.log('Help command executed by user: ' + e.message.author.username);
+		var help = "";
+		 help += "**Usage:** !hero <heroname>\n";
+		 help += "**Output:** <hero-role>\n\n";
+		 help += "**Usage:** !counter <heroname>\n";
+		 help += "**Output:** <hero-counters>\n\n";
+		 help += "**Usage:** !synergies <heroname> | !syn <heroname>\n";
+		 help += "**Output:** <hero-synergies>\n\n";
+		 help += "**Usage:** !map <mapname> (optional: <hero-role>)\n";
+		 help += "**Output:** <best-heroes> <notes>\n\n";
+
+		e.message.channel.sendMessage(help);
 	}else if(input[0] == "!hero"){
 		var hero = new Hero(input[1]);
 		hero.printHeroInformation(e);
+	}else if(input[0] == "!counter" || input[0] == "!counters"){
+		var hero = new Hero(input[1]);
+		hero.printCounterInformation(e);
+	}else if(input[0] == "!synergies" || input[0] == "!syn" || input[0] == "!synergy"){
+		var hero = new Hero(input[1]);
+		hero.printSynergiesInformation(e);
 	}else if(input[0] == "!map"){
 		var options = {};
 
