@@ -4,6 +4,7 @@ var mysql = require('mysql');
 
 // Creates and manages the database connections
 class Database{
+
 	constructor(){
 		this.connection = mysql.createConnection({
 			host: "localhost",
@@ -20,6 +21,8 @@ class Database{
 
 			console.log('Connection established...');
 		});
+
+		return this.connection;
 	}
 }
 
