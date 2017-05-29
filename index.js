@@ -30,15 +30,6 @@ client.Dispatcher.on("GATEWAY_READY", e => {
 			log = channels[x];
 		}
 	}
-	
-	if(log === null)
-		console.log("No log found");
-	else 
-		console.log("Log found");
-	
-	console.log("Testing database connection...");
-	this.connection = new Database();
-	this.connection.end();
 });
 
 client.Dispatcher.on("MESSAGE_CREATE", e => {
@@ -65,6 +56,23 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 	}else if(input[0] == "!synergies" || input[0] == "!syn" || input[0] == "!synergy"){
 		var hero = new Hero(input[1]);
 		hero.printSynergiesInformation(e);
+	}else if(input[0] == "!add"){
+		if(input[1] == "hero"){
+			var hero = new Hero(undefined);
+			// hero name, hero role
+			hero.addHero(input[2], input[3], e);
+		}else if(input[1] == "counter"){
+			var hero = new Hero(undefined);
+			// hero name, hero role
+			hero.addCounter(input[2], input[3], e);
+		}else if(input[1] == "syn" || input[1] == "synergy"){
+			var hero = new Hero(undefined);
+			// hero name, hero role
+			hero.addSynergy(input[2], input[3], e);
+		}else{
+			e.message.channel.sendMessage("Error with !add syntax. Please type !help to see usage for !add");
+		}
+		
 	}else if(input[0] == "!map"){
 		var options = {};
 
@@ -75,8 +83,4 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 
 		var map = new Map(options);
 	}
-});
-
-client.Dispatcher.on("VOICE_CHANNEL_JOIN", e => {
-	log.sendMessage(e.user.username + " has joined the channel " + e.channel.name);
 });

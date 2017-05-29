@@ -18,8 +18,6 @@ class Database{
 				console.log(err);
 				return;
 			}
-
-			console.log('Connection established...');
 		});
 
 		return this.connection;
