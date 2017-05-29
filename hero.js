@@ -24,6 +24,7 @@ class Hero{
 			this.findHeroes(e);
 			this.findCounters(e);
 			this.findSynergies(e);
+			this.findStrongAgainst(e);
 
 			this.connection.end();
 		}
@@ -148,10 +149,46 @@ class Hero{
 					this.connection = new Database();
 					this.connection.query(query,function(err,rows){
 					  	if(err) throw err;
+					  	if(rows.length == 0) e.message.channel.sendMessage("No synergies found...");
 
 					  	for (var i = rows.length - 1; i >= 0; i--) {
 					  		var resultString = "**Synergies for hero:** " + rows[i].name;
 					  		resultString +=    "\n**Synergies:** " + rows[i].synergies;
+					  		resultString += 	"\n";
+					  		e.message.channel.sendMessage(resultString);
+					  	}
+					});
+					this.connection.end();
+			  	}
+			});
+
+		}
+	}
+
+	findStrongAgainst(e){
+		if(this.name !== undefined && this.name.length >= 1){
+			// Open a connection
+			var query = 'Select * from heroes where name like "%'+this.name+'%"';
+			this.connection.query(query,function(err,rows){
+			  	if(err) throw err;
+			  	if(rows.length == 0) e.message.channel.sendMessage("No heroes found...");
+
+			  	for (var i = rows.length - 1; i >= 0; i--) {
+			  		var query = 'select h.name, group_concat(DISTINCT c.name) as strong_against ';
+					query += 'from counters hc ';
+					query += 'join heroes h on hc.counter_id = h.id ';
+					query += 'join heroes c on hc.hero_id = c.id ';
+					query += 'where counter_id = ' + rows[i].id;
+					query += ' group by c.id';
+
+					this.connection = new Database();
+					this.connection.query(query,function(err,rows){
+					  	if(err) throw err;
+					  	if(rows.length == 0) e.message.channel.sendMessage("No strengths found...");
+
+					  	for (var i = rows.length - 1; i >= 0; i--) {
+					  		var resultString = "**Hero:** " + rows[i].name;
+					  		resultString +=    "\n**Strong against:** " + rows[i].strong_against;
 					  		resultString += 	"\n";
 					  		e.message.channel.sendMessage(resultString);
 					  	}
