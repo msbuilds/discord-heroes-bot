@@ -34,67 +34,71 @@ client.Dispatcher.on("GATEWAY_READY", e => {
 
 client.Dispatcher.on("MESSAGE_CREATE", e => {
 	input = e.message.content.match(/[^\s"]+|"([^"]*)"/gi);
+	try{
+		if(input[0] == "!help"){
+			var help = "";
+			 help += "**Usage:** !hero <heroname>\n";
+			 help += "**Output:** <hero-role>\n\n";
+			 help += "**Usage:** !counter <heroname>\n";
+			 help += "**Output:** <hero-counters>\n\n";
+			 help += "**Usage:** !synergies <heroname> | !syn <heroname>\n";
+			 help += "**Output:** <hero-synergies>\n\n";
+			 help += "**Usage:** !map <mapname> (optional: <hero-role>)\n";
+			 help += "**Output:** <best-heroes> <notes>\n\n";
 
-	if(input[0] == "!help"){
-		var help = "";
-		 help += "**Usage:** !hero <heroname>\n";
-		 help += "**Output:** <hero-role>\n\n";
-		 help += "**Usage:** !counter <heroname>\n";
-		 help += "**Output:** <hero-counters>\n\n";
-		 help += "**Usage:** !synergies <heroname> | !syn <heroname>\n";
-		 help += "**Output:** <hero-synergies>\n\n";
-		 help += "**Usage:** !map <mapname> (optional: <hero-role>)\n";
-		 help += "**Output:** <best-heroes> <notes>\n\n";
-
-		e.message.channel.sendMessage(help);
-	}else if(input[0] == "!hero"){
-		if(input[1] != undefined && input[1].length > 2){
+			e.message.channel.sendMessage(help);
+		}else if(input[0] == "!hero"){
+			if(input[1] != undefined && input[1].length > 2){
+				var hero = new Hero(input[1].replace(/\"/g,""));
+				hero.printHeroInformation(e);
+			}else{
+				e.message.channel.sendMessage("To search for a hero, please enter at least 3 characters.");
+			}		
+		}else if(input[0] == "!counter" || input[0] == "!counters"){
 			var hero = new Hero(input[1].replace(/\"/g,""));
-			hero.printHeroInformation(e);
-		}else{
-			e.message.channel.sendMessage("To search for a hero, please enter at least 3 characters.");
-		}		
-	}else if(input[0] == "!counter" || input[0] == "!counters"){
-		var hero = new Hero(input[1].replace(/\"/g,""));
-		hero.printCounterInformation(e);
-	}else if(input[0] == "!synergies" || input[0] == "!syn" || input[0] == "!synergy"){
-		var hero = new Hero(input[1].replace(/\"/g,""));
-		hero.printSynergiesInformation(e);
-	}else if(input[0] == "!add"){
-		if(input[1] == "hero"){
-			var hero = new Hero(undefined);
-			hero.addHero(input[2], input[3], e);
-		}else if(input[1] == "counter"){
-			var hero = new Hero(undefined);
-			hero.addCounter(input[2], input[3], e);
-		}else if(input[1] == "syn" || input[1] == "synergy"){
-			var hero = new Hero(undefined);
-			hero.addSynergy(input[2], input[3], e);
-		}else{
-			e.message.channel.sendMessage("Error with !add syntax.");
-		}
-		
-	}else if(input[0] == "!remove"){
-		if(input[1] == "hero"){
-			e.message.channel.sendMessage("Unable to remove hero. Please contact the DB Admin to delete this record.");
-		}else if(input[1] == "counter"){
-			var hero = new Hero(undefined);
-			hero.removeCounter(input[2], input[3], e);
-		}else if(input[1] == "syn" || input[1] == "synergy"){
-			var hero = new Hero(undefined);
-			hero.removeSynergy(input[2], input[3], e);
-		}else{
-			e.message.channel.sendMessage("Error with !remove syntax.");
-		}
-	}else if(input[0] == "!map"){
-		var options = {};
+			hero.printCounterInformation(e);
+		}else if(input[0] == "!synergies" || input[0] == "!syn" || input[0] == "!synergy"){
+			var hero = new Hero(input[1].replace(/\"/g,""));
+			hero.printSynergiesInformation(e);
+		}else if(input[0] == "!add"){
+			if(input[1] == "hero"){
+				var hero = new Hero(undefined);
+				hero.addHero(input[2], input[3], e);
+			}else if(input[1] == "counter"){
+				var hero = new Hero(undefined);
+				hero.addCounter(input[2], input[3], e);
+			}else if(input[1] == "syn" || input[1] == "synergy"){
+				var hero = new Hero(undefined);
+				hero.addSynergy(input[2], input[3], e);
+			}else{
+				e.message.channel.sendMessage("Error with !add syntax.");
+			}
+			
+		}else if(input[0] == "!remove"){
+			if(input[1] == "hero"){
+				e.message.channel.sendMessage("Unable to remove hero. Please contact the DB Admin to delete this record.");
+			}else if(input[1] == "counter"){
+				var hero = new Hero(undefined);
+				hero.removeCounter(input[2], input[3], e);
+			}else if(input[1] == "syn" || input[1] == "synergy"){
+				var hero = new Hero(undefined);
+				hero.removeSynergy(input[2], input[3], e);
+			}else{
+				e.message.channel.sendMessage("Error with !remove syntax.");
+			}
+		}else if(input[0] == "!map"){
+			var options = {};
 
-		if(input[1] !== undefined)
-			options.map = input[1];
-		if(input[2] !== undefined)
-			options.hero = input[2];
+			if(input[1] !== undefined)
+				options.map = input[1];
+			if(input[2] !== undefined)
+				options.hero = input[2];
 
-		var map = new Map(options);
-		map.printBestHeroes(e);
+			var map = new Map(options);
+			map.printBestHeroes(e);
+		}
+	}catch(err){
+		console.log("Error caught: " + err);
+		e.message.channel.sendMessage("An error was caught. Please check your console.");
 	}
 });
