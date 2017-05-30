@@ -38,8 +38,10 @@ class Hero{
 			var query = 'insert into heroes (name, role) values ("'+name.replace(/\"/g,"")+'", "'+role.replace(/\"/g,"")+'")';
 
 			this.connection.query(query,function(err,rows){
-				if(err) throw err;
-				e.message.channel.sendMessage("Hero has been added.")
+				if(err) e.message.channel.sendMessage("Unable to add hero. Please check if hero already exists.");
+				else{
+					e.message.channel.sendMessage("Hero has been added.");
+				}
 			});
 
 			this.connection.end();
@@ -51,11 +53,52 @@ class Hero{
 			// Open a connection
 			this.connection = new Database();
 
-			var query = 'insert into counters (hero_id, counter_id) values ("'+hero_id+'", "'+counter_id+'")';
+			var query = 'insert into counters (hero_id, counter_id) values ('+hero_id+', '+counter_id+')';
 
 			this.connection.query(query,function(err,rows){
-				if(err) throw err;
-				e.message.channel.sendMessage("Counter has been added.")
+				if(err) 
+					e.message.channel.sendMessage("Unable to add counter. Please check if counter already exists.");
+				else{ 
+					e.message.channel.sendMessage("Counter has been added."); 
+				}
+			});
+
+			this.connection.end();
+		}
+	}
+
+	removeCounter(hero_id, counter_id, e){
+		if(hero_id !== undefined && counter_id !== undefined){
+			// Open a connection
+			this.connection = new Database();
+
+			var query = 'delete from counters where hero_id = '+hero_id+' and counter_id = '+counter_id;
+
+			this.connection.query(query,function(err,rows){
+				if(err) 
+					e.message.channel.sendMessage("Unable to delete counter. Please check if counter exists.");
+				else{ 
+					e.message.channel.sendMessage("Counter has been removed."); 
+				}
+			});
+
+			this.connection.end();
+		}
+	}
+
+	removeSynergy(hero_id, syn_id, e){
+		if(hero_id !== undefined && syn_id !== undefined){
+			// Open a connection
+			this.connection = new Database();
+
+			var query = 'delete from synergies where hero_id = '+hero_id+' and syn_id = '+syn_id;
+
+			this.connection.query(query,function(err,rows){
+				if(err) 
+					e.message.channel.sendMessage("Unable to delete synergy. Please check if synergy exists.");
+				else{ 
+					e.message.channel.sendMessage("Synergy has been removed."); 
+				}
 			});
 
 			this.connection.end();
@@ -67,11 +110,13 @@ class Hero{
 			// Open a connection
 			this.connection = new Database();
 
-			var query = 'insert into synergy (hero_id, syn_id) values ("'+hero_id+'", "'+syn_id+'")';
+			var query = 'insert into synergies (hero_id, syn_id) values ('+hero_id+', '+syn_id+')';
 
 			this.connection.query(query,function(err,rows){
-				if(err) throw err;
-				e.message.channel.sendMessage("Synergies has been added.")
+				if(err) e.message.channel.sendMessage("Unable to add synergy. Please check if synergy already exists.");
+				else{
+					e.message.channel.sendMessage("Synergy has been added.");
+				}
 			});
 
 			this.connection.end();
@@ -104,7 +149,7 @@ class Hero{
 			  	if(rows.length == 0) e.message.channel.sendMessage("No counters found...");
 
 			  	for (var i = rows.length - 1; i >= 0; i--) {
-			  		var query = 'select h.name, group_concat(DISTINCT c.name) as counters ';
+			  		var query = "select h.name, group_concat(DISTINCT c.name SEPARATOR ', ') as counters ";
 					query += 'from counters hc ';
 					query += 'join heroes h on hc.hero_id = h.id ';
 					query += 'join heroes c on hc.counter_id = c.id ';
@@ -117,8 +162,8 @@ class Hero{
 					  	if(rows.length == 0) e.message.channel.sendMessage("No counters found...");
 
 					  	for (var i = rows.length - 1; i >= 0; i--) {
-					  		var resultString = "**Counters for hero:** " + rows[i].name;
-					  		resultString +=    "\n**Counters:** " + rows[i].counters;
+					  		var resultString = "Counters for **" + rows[i].name + "**";
+					  		resultString +=    " include heros such as " + rows[i].counters;
 					  		resultString += 	"\n";
 					  		e.message.channel.sendMessage(resultString);
 					  	}
@@ -139,7 +184,7 @@ class Hero{
 			  	if(rows.length == 0) e.message.channel.sendMessage("No heroes found...");
 
 			  	for (var i = rows.length - 1; i >= 0; i--) {
-			  		var query = 'select h.name, group_concat(DISTINCT c.name) as synergies ';
+			  		var query = "select h.name, group_concat(DISTINCT c.name SEPARATOR ', ') as synergies ";
 					query += 'from synergies hs ';
 					query += 'join heroes h on hs.hero_id = h.id ';
 					query += 'join heroes c on hs.syn_id = c.id ';
@@ -152,8 +197,8 @@ class Hero{
 					  	if(rows.length == 0) e.message.channel.sendMessage("No synergies found...");
 
 					  	for (var i = rows.length - 1; i >= 0; i--) {
-					  		var resultString = "**Synergies for hero:** " + rows[i].name;
-					  		resultString +=    "\n**Synergies:** " + rows[i].synergies;
+					  		var resultString = "Heroes who synergize with **" + rows[i].name + "**";
+					  		resultString +=    " include " + rows[i].synergies;
 					  		resultString += 	"\n";
 					  		e.message.channel.sendMessage(resultString);
 					  	}
@@ -174,7 +219,7 @@ class Hero{
 			  	if(rows.length == 0) e.message.channel.sendMessage("No heroes found...");
 
 			  	for (var i = rows.length - 1; i >= 0; i--) {
-			  		var query = 'select h.name, group_concat(DISTINCT c.name) as strong_against ';
+			  		var query = "select h.name, group_concat(DISTINCT c.name SEPARATOR ', ') as strong_against ";
 					query += 'from counters hc ';
 					query += 'join heroes h on hc.counter_id = h.id ';
 					query += 'join heroes c on hc.hero_id = c.id ';
@@ -185,13 +230,18 @@ class Hero{
 					this.connection.query(query,function(err,rows){
 					  	if(err) throw err;
 					  	if(rows.length == 0) e.message.channel.sendMessage("No strengths found...");
-
-					  	for (var i = rows.length - 1; i >= 0; i--) {
-					  		var resultString = "**Hero:** " + rows[i].name;
-					  		resultString +=    "\n**Strong against:** " + rows[i].strong_against;
-					  		resultString += 	"\n";
-					  		e.message.channel.sendMessage(resultString);
+					  	else{
+					  		var resultString = "**" + rows[0].name + "**";
+						  	resultString +=    " is strong against heroes like ";
+						  	for (var i = rows.length - 1; i >= 0; i--) {
+						  		resultString += rows[i].strong_against;
+						  		if(i != 0){
+						  			resultString += ", ";
+						  		}
+						  	}
+						  	e.message.channel.sendMessage(resultString);
 					  	}
+					  	
 					});
 					this.connection.end();
 			  	}
@@ -207,8 +257,8 @@ class Hero{
 		  	if(rows.length == 0) e.message.channel.sendMessage("No heroes found...");
 
 		  	for (var i = rows.length - 1; i >= 0; i--) {
-		  		var resultString = "**Found hero:** " + rows[i].name + " ("+rows[i].id+")";
-		  		resultString +=    "\n**Role:** " + rows[i].role;
+		  		var resultString = "**" + rows[i].name + "** ("+rows[i].id+") ";
+		  		resultString +=    "is a **" + rows[i].role + "**";
 		  		resultString += 	"\n";
 		  		e.message.channel.sendMessage(resultString);
 		  	}

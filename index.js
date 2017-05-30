@@ -48,31 +48,44 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 
 		e.message.channel.sendMessage(help);
 	}else if(input[0] == "!hero"){
-		var hero = new Hero(input[1]);
-		hero.printHeroInformation(e);
+		if(input[1] != undefined && input[1].length > 2){
+			var hero = new Hero(input[1].replace(/\"/g,""));
+			hero.printHeroInformation(e);
+		}else{
+			e.message.channel.sendMessage("To search for a hero, please enter at least 3 characters.");
+		}		
 	}else if(input[0] == "!counter" || input[0] == "!counters"){
-		var hero = new Hero(input[1]);
+		var hero = new Hero(input[1].replace(/\"/g,""));
 		hero.printCounterInformation(e);
 	}else if(input[0] == "!synergies" || input[0] == "!syn" || input[0] == "!synergy"){
-		var hero = new Hero(input[1]);
+		var hero = new Hero(input[1].replace(/\"/g,""));
 		hero.printSynergiesInformation(e);
 	}else if(input[0] == "!add"){
 		if(input[1] == "hero"){
 			var hero = new Hero(undefined);
-			// hero name, hero role
 			hero.addHero(input[2], input[3], e);
 		}else if(input[1] == "counter"){
 			var hero = new Hero(undefined);
-			// hero name, hero role
 			hero.addCounter(input[2], input[3], e);
 		}else if(input[1] == "syn" || input[1] == "synergy"){
 			var hero = new Hero(undefined);
-			// hero name, hero role
 			hero.addSynergy(input[2], input[3], e);
 		}else{
-			e.message.channel.sendMessage("Error with !add syntax. Please type !help to see usage for !add");
+			e.message.channel.sendMessage("Error with !add syntax.");
 		}
 		
+	}else if(input[0] == "!remove"){
+		if(input[1] == "hero"){
+			e.message.channel.sendMessage("Unable to remove hero. Please contact the DB Admin to delete this record.");
+		}else if(input[1] == "counter"){
+			var hero = new Hero(undefined);
+			hero.removeCounter(input[2], input[3], e);
+		}else if(input[1] == "syn" || input[1] == "synergy"){
+			var hero = new Hero(undefined);
+			hero.removeSynergy(input[2], input[3], e);
+		}else{
+			e.message.channel.sendMessage("Error with !remove syntax.");
+		}
 	}else if(input[0] == "!map"){
 		var options = {};
 
@@ -82,5 +95,6 @@ client.Dispatcher.on("MESSAGE_CREATE", e => {
 			options.hero = input[2];
 
 		var map = new Map(options);
+		map.printBestHeroes(e);
 	}
 });
