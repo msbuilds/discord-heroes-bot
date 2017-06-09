@@ -1,5 +1,6 @@
 // load the database object
 var Database = require('./Database');
+"use strict"
 /*
  *	Map Class
  *
